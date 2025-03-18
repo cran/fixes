@@ -1,0 +1,17 @@
+8f5a56255d4889f47432865afb1e77a3 *DESCRIPTION
+786f38bdba3a74ef7188577727b76483 *LICENSE
+db94de18546309e0ab24bdfef77098af *NAMESPACE
+e6d585140b995a557b78d09cc2f5e597 *NEWS.md
+af795f8c26ffc7ecf7d6f23e69f54fcd *R/event_study.R
+4d9d51194a31a2e237379aebc5924f67 *R/globals.R
+eac90a4b5453fbef7e86bdcdd9a8271e *README.md
+f9b63d5191cde8a3f46800821f308d35 *build/vignette.rds
+4f8bd692bd5c348aa2512639e959b362 *inst/doc/fixes-intro.R
+baec6da17c175bc1b96650e0328629aa *inst/doc/fixes-intro.Rmd
+7726c42305e31f850ede57bb32623b3c *inst/doc/fixes-intro.html
+18fc4c4b26ff3bcc3c9754c28c072d9e *man/figures/logo.png
+bf75355a095aa474d9d06093a791cd45 *man/plot_es.Rd
+f9d8abf85907c34b603b55aceadbe847 *man/run_es.Rd
+f67321b938dd37d6d170bab442d3b048 *tests/testthat/test-plot_es.R
+40db138ede1d5dc07ad20e67b58b4b8b *tests/testthat/test-run_es.R
+baec6da17c175bc1b96650e0328629aa *vignettes/fixes-intro.Rmd

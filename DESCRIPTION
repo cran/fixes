@@ -1,0 +1,26 @@
+Package: fixes
+Type: Package
+Title: Tools for Creating and Visualizing Fixed-Effects Event Study
+        Models
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Yosuke", "Abe",
+      email = "yosuke.abe0507@gmail.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Provides functions for creating, analyzing, and visualizing event study models using fixed-effects regression.
+Depends: R (>= 4.1.0)
+Imports: dplyr, ggplot2, fixest, broom, tibble, rlang
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2025-03-17 11:35:50 UTC; yo5uk
+Author: Yosuke Abe [aut, cre]
+Maintainer: Yosuke Abe <yosuke.abe0507@gmail.com>
+Repository: CRAN
+Date/Publication: 2025-03-18 15:10:06 UTC
