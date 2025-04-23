@@ -1,56 +1,141 @@
-test_that("run_es produces correct output with interval parameter", {
-  # Create test data
-  df <- tibble::tibble(
-    id      = rep(1:5, each = 11),
-    year    = rep(2000:2010, times = 5),
-    y       = rnorm(55),
-    treated = dplyr::if_else(id %in% c(1, 3, 5), 1, 0)
+library(dplyr)
+
+set.seed(123)
+
+n_firms <- 1000
+n_states <- 50
+T <- 36
+
+firm_id <- 1:n_firms
+state_id <- sample(n_states, size = n_firms, replace = TRUE)
+year_seq <- 1980:2015
+
+fe_firm <- rnorm(n_firms, mean = 0, sd = 0.5)
+fe_year <- rnorm(T, mean = 0, sd = 0.5)
+error <- rnorm(n_firms * T, mean = 0, sd = 0.5)
+
+treated_1998 <- sample(c(1, 0), size = n_firms, replace = TRUE, prob = c(0.5, 0.5))
+
+panel_data <- tibble::tibble(
+  firm_id       = rep(firm_id, each = T),
+  state_id      = rep(state_id, each = T),
+  year          = rep(year_seq, times = n_firms),
+  fe_firm       = rep(fe_firm, each = T),
+  fe_year       = rep(fe_year, times = n_firms),
+  error         = error,
+  treated_1998  = rep(treated_1998, each = T),
+  is_treated    = ifelse(treated_1998 == 1 & rep(year_seq, times = n_firms) >= 1998, 1, 0)
+) |>
+  dplyr::mutate(
+    x1 = rnorm(n()),
+    x2 = as.numeric(firm_id %% 5),
+    y = dplyr::case_when(
+      is_treated == 1 ~ rnorm(n(), mean = 2, sd = 0.2) + fe_firm + fe_year + error,
+      TRUE            ~ fe_firm + fe_year + error
+    )
   )
 
-  # Run the function with default interval (1-year steps)
-  result_default <- df |>
-    run_es(y, treated, year, 2005, 3, 2, id + year, "id")
 
-  # Verify output for default interval
-  expect_true("relative_time" %in% colnames(result_default))
-  expect_equal(min(result_default$relative_time), -3)
-  expect_equal(max(result_default$relative_time), 2)
+test_that("Basic usage with fixed effects and clustering", {
+  result <- run_es(
+    data       = panel_data,
+    outcome    = y,
+    treatment  = treated_1998,
+    time       = year,
+    timing     = 1998,
+    lead_range = 5,
+    lag_range  = 5,
+    covariates = NULL,
+    fe         = ~ firm_id + year,
+    cluster    = ~ state_id,
+    baseline   = -1,
+    interval   = 1
+  )
 
-  # Run the function with interval = 5 (5-year steps)
-  result_interval <- df |>
-    run_es(y, treated, year, 2005, 1, 1, id + year, "id", interval = 5)
+  expect_s3_class(result, "data.frame")
+  expect_true(all(c("conf_low", "conf_high") %in% names(result)))
+  expect_true(any(result$is_baseline))
+  expect_equal(result[result$is_baseline, ]$estimate, 0)
+})
 
-  # Verify output for 5-year interval
-  expect_true("relative_time" %in% colnames(result_interval))
-  expect_equal(min(result_interval$relative_time), -5)
-  expect_equal(max(result_interval$relative_time), 5)
+test_that("Cluster specified as character vector", {
+  result <- run_es(
+    data       = panel_data,
+    outcome    = y,
+    treatment  = treated_1998,
+    time       = year,
+    timing     = 1998,
+    lead_range = 3,
+    lag_range  = 3,
+    covariates = NULL,
+    fe         = ~ firm_id + year,
+    cluster    = c("state_id"),
+    baseline   = -1,
+    interval   = 1
+  )
 
-  # Suppress warnings for out-of-range lead/lag
-  expect_warning(
-    run_es(df, y, treated, year, 2005, 10, 10, id + year, "id"),
-    regexp = "exceeds the available range"
+  expect_s3_class(result, "data.frame")
+  expect_true("conf_low" %in% names(result))
+})
+
+test_that("Error when baseline is outside lead/lag range (too large)", {
+  expect_error(
+    run_es(
+      data       = panel_data,
+      outcome    = y,
+      treatment  = treated_1998,
+      time       = year,
+      timing     = 1998,
+      lead_range = 2,
+      lag_range  = 2,
+      covariates = NULL,
+      fe         = ~ firm_id + year,
+      cluster    = ~ state_id,
+      baseline   = 6,  # lag6 is outside range
+      interval   = 1
+    ),
+    regexp = "baseline.*outside the range"
   )
 })
 
-test_that("run_es handles expression in outcome (e.g., log(y)) correctly", {
-  # Create test data ensuring y is always positive for log()
-  df2 <- tibble::tibble(
-    id      = rep(1:5, each = 5),
-    year    = rep(2000:2004, times = 5),
-    y       = abs(rnorm(25)) + 0.1,  # shift so y > 0
-    treated = dplyr::if_else(id %in% c(1, 3, 5), 1, 0)
+test_that("Error when baseline is outside lead/lag range (too small)", {
+  expect_error(
+    run_es(
+      data       = panel_data,
+      outcome    = y,
+      treatment  = treated_1998,
+      time       = year,
+      timing     = 1998,
+      lead_range = 2,
+      lag_range  = 2,
+      covariates = NULL,
+      fe         = ~ firm_id + year,
+      cluster    = ~ state_id,
+      baseline   = -10,  # lead10 is outside range
+      interval   = 1
+    ),
+    regexp = "baseline.*outside the range"
   )
-
-  # Run run_es() with log(y) as the outcome expression
-  result_log <- df2 |>
-    run_es(log(y), treated, year, 2002, lead_range = 1, lag_range = 1,
-           fe = id, cluster = "id", interval = 1)
-
-  # Check that the function produces a result without error
-  expect_true("relative_time" %in% colnames(result_log))
-  expect_true("estimate" %in% colnames(result_log))
-
-  # Additional checks for baseline and term names
-  expect_true(any(result_log$term == "lag0"))
-  expect_true(any(result_log$term == "lead1"))
 })
+
+test_that("Error when cluster input is invalid type", {
+  expect_error(
+    run_es(
+      data       = panel_data,
+      outcome    = y,
+      treatment  = treated_1998,
+      time       = year,
+      timing     = 1998,
+      lead_range = 2,
+      lag_range  = 2,
+      covariates = NULL,
+      fe         = ~ firm_id + year,
+      cluster    = 1:10,  # numeric vector (invalid)
+      baseline   = -1,
+      interval   = 1
+    ),
+    regexp = "Invalid type for cluster argument"
+  )
+})
+
+

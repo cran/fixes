@@ -1,3 +1,16 @@
+# fixes 0.2.0 (March 29, 2025)
+
+## Major Features
+- **Support for covariates in `run_es()`**:
+  - Covariates must now be specified as a **one-sided formula** (e.g., `~ x1 + x2`).
+- **Fixed Effects and Clustering Interface Updated**:
+  - `fe` and `cluster` arguments must now be specified using a **one-sided formula** (e.g., `~ id + year`).
+  - Character vector input for `cluster` is still accepted.
+  - Improved internal handling and validation of fixed effects and clustering variables.
+- Improved error messages for invalid or missing variable names.
+
+---
+
 # fixes 0.1.0 (March 17, 2025)
 
 ## Major Changes

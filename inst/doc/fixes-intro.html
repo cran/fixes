@@ -12,7 +12,7 @@
 
 <meta name="author" content="Yosuke Abe" />
 
-<meta name="date" content="2025-03-17" />
+<meta name="date" content="2025-04-20" />
 
 <title>Introduction to fixes</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to fixes</h1>
 <h4 class="author">Yosuke Abe</h4>
-<h4 class="date">March 17, 2025</h4>
+<h4 class="date">April 20, 2025</h4>
 
 
 
@@ -390,43 +390,46 @@ perform an event study analysis. In this example, we assume an event
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>fe_year <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(T, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> .<span class="dv">5</span>)</span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>error <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_firms <span class="sc">*</span> T, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> .<span class="dv">5</span>)</span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>treated_1998 <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">size =</span> n_firms, </span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>treated_1998 <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">size =</span> n_firms,</span>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>                       <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>))</span>
 <span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a></span>
 <span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>df <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>  <span class="at">firm_id =</span> <span class="fu">rep</span>(firm_id, <span class="at">each =</span> T), </span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>  <span class="at">state_id =</span> <span class="fu">rep</span>(state_id, <span class="at">each =</span> T), </span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>  <span class="at">year =</span> <span class="fu">rep</span>(year, <span class="at">times =</span> n_firms), </span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>  <span class="at">fe_firm =</span> <span class="fu">rep</span>(fe_firm, <span class="at">each =</span> T), </span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>  <span class="at">fe_year =</span> <span class="fu">rep</span>(fe_year, <span class="at">times =</span> n_firms), </span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>  <span class="at">error =</span> error, </span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>  <span class="at">is_treated =</span> <span class="fu">rep</span>(treated_1998, <span class="at">each =</span> T), </span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>  <span class="at">after_treat =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(is_treated <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> year <span class="sc">&gt;=</span> <span class="dv">1998</span>, <span class="dv">1</span>, <span class="dv">0</span>), </span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>  <span class="at">y =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>    after_treat <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> </span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>      <span class="fu">rnorm</span>(n_firms <span class="sc">*</span> T, <span class="at">mean =</span> .<span class="dv">3</span>, <span class="at">sd =</span> .<span class="dv">2</span>) <span class="sc">*</span> (year <span class="sc">-</span> <span class="dv">1997</span>) <span class="sc">+</span> fe_firm <span class="sc">+</span> fe_year <span class="sc">+</span> error, </span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>    <span class="at">.default =</span> fe_firm <span class="sc">+</span> fe_year <span class="sc">+</span> error</span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>  )</span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>)</span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co"># Run the event study</span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a>event_study <span class="ot">&lt;-</span> <span class="fu">run_es</span>(</span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>  <span class="at">data       =</span> df, </span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>  <span class="at">outcome    =</span> y, </span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a>  <span class="at">treatment  =</span> is_treated, </span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>  <span class="at">time       =</span> year, </span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>  <span class="at">timing     =</span> <span class="dv">1998</span>, </span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a>  <span class="at">lead_range =</span> <span class="dv">18</span>,              <span class="co"># Corresponds to years 2000-2004 (relative time: -5 to -1)</span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a>  <span class="at">lag_range  =</span> <span class="dv">17</span>,              <span class="co"># Corresponds to years 2006-2009 (relative time: 1 to 4)</span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a>  <span class="at">fe         =</span> firm_id <span class="sc">+</span> year, </span>
-<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a>  <span class="at">cluster    =</span> <span class="st">&quot;state_id&quot;</span>, </span>
-<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a>  <span class="at">baseline   =</span> <span class="sc">-</span><span class="dv">1</span>, </span>
-<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a>  <span class="at">interval   =</span> <span class="dv">1</span></span>
-<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>)</span>
-<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a></span>
-<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="co"># View the first few rows of the event study results</span></span>
-<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a><span class="fu">head</span>(event_study)</span></code></pre></div>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>  <span class="at">firm_id =</span> <span class="fu">rep</span>(firm_id, <span class="at">each =</span> T),</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>  <span class="at">state_id =</span> <span class="fu">rep</span>(state_id, <span class="at">each =</span> T),</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>  <span class="at">year =</span> <span class="fu">rep</span>(year, <span class="at">times =</span> n_firms),</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>  <span class="at">fe_firm =</span> <span class="fu">rep</span>(fe_firm, <span class="at">each =</span> T),</span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>  <span class="at">fe_year =</span> <span class="fu">rep</span>(fe_year, <span class="at">times =</span> n_firms),</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>  <span class="at">error =</span> error,</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>  <span class="at">is_treated =</span> <span class="fu">rep</span>(treated_1998, <span class="at">each =</span> T),</span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>  <span class="at">after_treat =</span> dplyr<span class="sc">::</span><span class="fu">if_else</span>(is_treated <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> year <span class="sc">&gt;=</span> <span class="dv">1998</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>  <span class="at">x1 =</span> <span class="fu">runif</span>(n_firms <span class="sc">*</span> T),</span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>  <span class="at">x2 =</span> <span class="fu">rnorm</span>(n_firms <span class="sc">*</span> T),</span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>  <span class="at">y =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>    after_treat <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>      <span class="fu">rnorm</span>(n_firms <span class="sc">*</span> T, <span class="at">mean =</span> .<span class="dv">3</span>, <span class="at">sd =</span> .<span class="dv">2</span>) <span class="sc">*</span> (year <span class="sc">-</span> <span class="dv">1997</span>) <span class="sc">+</span> fe_firm <span class="sc">+</span> fe_year <span class="sc">+</span> error,</span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>    <span class="at">.default =</span> fe_firm <span class="sc">+</span> fe_year <span class="sc">+</span> error</span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>  )</span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>)</span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co"># Run the event study</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>event_study <span class="ot">&lt;-</span> <span class="fu">run_es</span>(</span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>  <span class="at">data       =</span> df,</span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a>  <span class="at">outcome    =</span> y,</span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>  <span class="at">treatment  =</span> is_treated,</span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>  <span class="at">time       =</span> year,</span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a>  <span class="at">timing     =</span> <span class="dv">1998</span>,</span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a>  <span class="at">lead_range =</span> <span class="dv">18</span>,</span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a>  <span class="at">lag_range  =</span> <span class="dv">17</span>,</span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a>  <span class="at">covariates =</span> <span class="sc">~</span> x1 <span class="sc">+</span> x2,</span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a>  <span class="at">fe         =</span> <span class="sc">~</span> firm_id <span class="sc">+</span> year,</span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a>  <span class="at">cluster    =</span> <span class="sc">~</span> state_id,</span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>  <span class="at">baseline   =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a>  <span class="at">interval   =</span> <span class="dv">1</span></span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a>)</span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a></span>
+<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a><span class="co"># View the first few rows of the event study results</span></span>
+<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a><span class="fu">head</span>(event_study)</span></code></pre></div>
 </div>
 <div id="visualizing-the-event-study-results" class="section level2">
 <h2>Visualizing the Event Study Results</h2>
@@ -461,8 +464,19 @@ analysis and supports custom time intervals. Key functions include:</p>
 <ul>
 <li>Automatically generates lead and lag dummy variables relative to the
 treatment event.</li>
-<li>Constructs and estimates a fixed effects regression model using
-<code>fixest::feols()</code>.</li>
+<li>Constructs and estimates a fixed effects regression model.</li>
+<li>Accepts covariates specified as a one-sided formula (e.g.,
+<code>~ x1 + x2</code>).</li>
+<li>Fixed effects must also be specified as a one-sided formula (e.g.,
+<code>~ id + year</code>).</li>
+<li>Supports clustered standard errors:
+<ul>
+<li>You can specify clusters using either a character vector (e.g.,
+<code>c(&quot;id&quot;, &quot;year&quot;)</code>) or a one-sided formula (e.g.,
+<code>~ id + year</code> or <code>~ id^year</code>).</li>
+<li>The cluster variables are evaluated <em>after</em> subsetting the
+estimation sample to ensure compatibility.</li>
+</ul></li>
 <li>Returns a tidy dataframe with estimated coefficients, standard
 errors, and confidence intervals.</li>
 </ul></li>
